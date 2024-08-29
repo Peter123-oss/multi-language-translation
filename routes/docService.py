@@ -1,13 +1,13 @@
 from flask import Blueprint, request
-from services.transBySentence import translate
-from services.OCRService import uploadFile1, convertToText, extract_text
 from models.textinput_history import TextInputHistory
+from services.transBySentence import translate
+from services.docTransService import uploadFile1, convertToText, extract_text, get_pdf_page_count
 from flask import jsonify
 
-ocr = Blueprint('ocrService', __name__)
+doc = Blueprint('docService', __name__)
 
 
-@ocr.route('/ocrUpload', methods=['POST'])
+@doc.route('/docUpload', methods=['POST'])
 def uploadFile():
     data = request.args
     path = data.get('path')  # 使用 get 方法来避免 KeyError
@@ -23,28 +23,28 @@ def uploadFile():
         # 如果上传失败，直接返回失败信息
         return jsonify(upload_result)
 
-    # 如果上传成功，继续调用 OCR 服务
-    image_text = upload_result["data"]
-    ocr_result = convertToText(image_text)
+    # 如果上传成功，继续调用 Doc 服务
+    pdf_text = upload_result["data"]
+    count=get_pdf_page_count(path)
+    doc_result = convertToText(pdf_text,page_count=count)
 
-    if ocr_result["code"] != 0:
+    if doc_result["code"] != 0:
         # 如果上传失败，直接返回失败信息
-        return jsonify(ocr_result)
+        return jsonify(doc_result)
 
-    full_text=extract_text(ocr_result)
+    TextInputHistory.add(TextInputHistory(inputPath=path, inputType=3, identifyResult=doc_result, userID=userID))
 
-    TextInputHistory.add(TextInputHistory(inputPath=path, inputType=2, identifyResult=full_text, userID=userID))
-
-    return full_text
+    return doc_result
 
 
 
 
-@ocr.route('/ocrTranslate', methods=['POST'])
-def ocrTranslate():
+@doc.route('/docTranslate', methods=['POST'])
+def docTranslate():
     data = request.args
     path = data.get('path')
     userID = data.get('userID')
     identifyResult = data.get('identifyResult')
-    data = translate(userID, identifyResult, 2, path)
+    data = translate(userID, identifyResult, 3, path)
     return data
+

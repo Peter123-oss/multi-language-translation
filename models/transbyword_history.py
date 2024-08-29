@@ -10,7 +10,7 @@ class TransByWordHistory(db.Model):
     wordResult = db.Column(db.String(255), nullable=False, default=None)
     dicID = db.Column(db.Integer, db.ForeignKey('dictionary.id'), nullable=False)
 
-    def to_dict(self):
+    def toDict(self):
         return {
             'id': self.id,
             'userID': self.userID,
@@ -20,3 +20,8 @@ class TransByWordHistory(db.Model):
             'wordResult': self.wordResult,
             'dicID': self.dicID,
         }
+
+
+    def add(newHistory):
+        db.session.add(newHistory)
+        db.session.commit()

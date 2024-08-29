@@ -37,3 +37,14 @@ def revisePasswordUI():
     phoneNumber = data['phoneNumber']
     data = revisePassword(account, password, rePassword, phoneNumber)
     return data
+
+
+@user.route('/verifyCode', methods=['POST'])
+def verifyCode():
+    data = request.args
+    vCode = data['vCode']
+
+
+@user.route('/', methods=['POST'])
+def mainWindowUI():
+    data = request.args

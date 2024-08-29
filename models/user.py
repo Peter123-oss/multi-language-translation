@@ -34,3 +34,15 @@ class User(db.Model):
         u = db.session.query(User).filter_by(id=id).first()
         u.password = newPassword
         db.session.commit()
+
+
+    def turnVIP(id):
+        u = db.session.query(User).filter_by(id=id).first()
+        u.isVIP = True
+        db.session.commit()
+
+
+    def changeStatus(id, newStatus):
+        u = db.session.query(User).filter_by(id=id).first()
+        u.status = newStatus
+        db.session.commit()

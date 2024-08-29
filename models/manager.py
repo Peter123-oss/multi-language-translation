@@ -20,3 +20,14 @@ class Manager(db.Model):
             'status': self.status,
             'gender': self.gender
         }
+
+
+    def add(newManager):
+        db.session.add(newManager)
+        db.session.commit()
+
+
+    def update(id, newPassword):
+        m = db.session.query(Manager).filter_by(id=id).first()
+        m.password = newPassword
+        db.session.commit()
