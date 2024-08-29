@@ -30,6 +30,7 @@ class User(db.Model):
         db.session.commit()
 
 
-    def update(id, user):
-        db.session.query(User).filter_by(id=id).update(user)
+    def update(id, newPassword):
+        u = db.session.query(User).filter_by(id=id).first()
+        u.password = newPassword
         db.session.commit()

@@ -68,7 +68,7 @@ def register(account, password, rePassword, phoneNumber, gender, userName):
     })
 
 
-def revisePassword(account, password, rePassword, phoneNumber):
+def revisePassword(account, newPassword, rePassword, phoneNumber):
     u = User.query.filter_by(account=account).first()
     if u is None:
         return jsonify({
@@ -76,7 +76,7 @@ def revisePassword(account, password, rePassword, phoneNumber):
             "message": "用户不存在",
             "data":""
         })
-    if password != rePassword:
+    if newPassword != rePassword:
         return jsonify({
             'code': -2,
             "message": "两次密码输入不一致",
@@ -95,8 +95,7 @@ def revisePassword(account, password, rePassword, phoneNumber):
             "message": "验证码错误",
             "data":""
         })
-    u.password = password
-    User.update(uDict['id'], u)
+    User.update(uDict['id'], newPassword)
     return jsonify({
         'code': 0,
         "message": "密码修改成功",

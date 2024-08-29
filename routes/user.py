@@ -1,5 +1,5 @@
 from flask import Blueprint, request
-from services.user import login, register, verifyCode
+from services.user import login, register, revisePassword
 
 user = Blueprint('user', __name__)
 
@@ -30,3 +30,10 @@ def registerUI():
 
 @user.route('/revisePasswordUI', methods=['POST'])
 def revisePasswordUI():
+    data = request.args
+    account = data['account']
+    password = data['password']
+    rePassword = data['rePassword']
+    phoneNumber = data['phoneNumber']
+    data = revisePassword(account, password, rePassword, phoneNumber)
+    return data
