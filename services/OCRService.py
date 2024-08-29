@@ -1,6 +1,9 @@
 import base64
 import urllib
 import requests
+import json
+from flask import jsonify
+
 
 API_KEY = "az817g5nHqvu3pswviokqeCk"
 SECRET_KEY = "miN4RrIB8TeLRIGhwmmtLt44NpbtUxcF"
@@ -9,7 +12,7 @@ SECRET_KEY = "miN4RrIB8TeLRIGhwmmtLt44NpbtUxcF"
 def main():
     url = "https://aip.baidubce.com/rest/2.0/ocr/v1/accurate_basic?access_token=" + get_access_token()
 
-    imageText=get_file_content_as_base64("222.png",True)
+    imageText=get_file_content_as_base64("../222.png", True)
     print(imageText)
 
     # image 可以通过 get_file_content_as_base64("C:\fakepath\222.png",True) 方法获取
@@ -23,6 +26,78 @@ def main():
     response = requests.request("POST", url, headers=headers, data=payload)
 
     print(response.text)
+
+def uploadFile1(path):
+    """
+    上传文件并返回其 base64 编码
+    :param path: 文件路径
+    :return: 字典，包含上传结果
+    """
+    imageText = get_file_content_as_base64(path, True)
+    if not imageText:
+        return {
+            "code": -1,
+            "message": "上传失败",
+            "data": ""
+        }
+    return {
+        "code": 0,
+        "message": "上传成功",
+        "data": imageText
+    }
+
+
+def convertToText(image_base64):
+    url = "https://aip.baidubce.com/rest/2.0/ocr/v1/accurate_basic?access_token=" + get_access_token()
+
+    payload = "image=" + image_base64
+    headers = {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Accept': 'application/json'
+    }
+
+    response = requests.post(url, headers=headers, data=payload)
+
+    if response.status_code != 200:
+        return {
+            "code": -1,
+            "message": "转换失败",
+            "data": response.text
+        }
+
+    # 正确解析 JSON 响应
+    try:
+        result = response.json()
+        return {
+            "code": 0,
+            "message": "转换成功",
+            "data": result
+        }
+    except json.JSONDecodeError:
+        return {
+            "code": -1,
+            "message": "JSON 解析失败",
+            "data": response.text
+        }
+
+def extract_text(data):
+    # 提取 words_result 列表
+    words_list = data["data"]["words_result"]
+
+    # 使用列表推导式提取所有 words 字段的值，并连接成一段话
+    combined_words = ''.join([item["words"] for item in words_list])
+    if not combined_words:
+        return jsonify({
+            "code":-1,
+            "message":"转化失败",
+            "data":""
+        })
+    return jsonify({
+        "code": 0,
+        "message": "转化成功",
+        "data": combined_words
+    })
+
 
 
 def get_file_content_as_base64(path, urlencoded=False):
