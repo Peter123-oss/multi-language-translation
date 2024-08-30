@@ -1,10 +1,11 @@
 from models.manager import Manager
 from models.user import User
+from services.verifyCode import verifyCode
 from flask import jsonify
 import random
 
 
-def login(account, password, phoneNumber):
+def login(account, password, phoneNumber, vCode, veriCode):
     m = Manager.query.filter_by(account=account).first()
     if m is None:
         # 用户不存在
@@ -27,11 +28,11 @@ def login(account, password, phoneNumber):
             "message": "手机号错误",
             "data":""
         })
-    if not verifyCode(phoneNumber):
+    if veriCode != vCode:
         return jsonify({
             'code': -4,
-            "message":"验证码错误",
-            "data":""
+            "message": "验证码错误",
+            "data": ""
         })
     return jsonify({
             'code': 0,
@@ -40,7 +41,7 @@ def login(account, password, phoneNumber):
         })
 
 
-def register(account, password, rePassword, phoneNumber, gender, managerName):
+def register(account, password, rePassword, phoneNumber, gender, managerName, vCode, veriCode):
     m = Manager.query.filter_by(account=account).first()
     if m is not None:
         return jsonify({
@@ -54,11 +55,11 @@ def register(account, password, rePassword, phoneNumber, gender, managerName):
             "message": "两次密码输入不一致",
             "data":""
         })
-    if not verifyCode(phoneNumber):
+    if veriCode != vCode:
         return jsonify({
             'code': -3,
             "message": "验证码错误",
-            "data":""
+            "data": ""
         })
     newManager = Manager(account=account, password=password, managerName=managerName, phoneNumber=phoneNumber,
                    status='正常', gender=gender)
@@ -70,7 +71,7 @@ def register(account, password, rePassword, phoneNumber, gender, managerName):
     })
 
 
-def revisePassword(account, newPassword, rePassword, phoneNumber):
+def revisePassword(account, newPassword, rePassword, phoneNumber, vCode, veriCode):
     m = Manager.query.filter_by(account=account).first()
     if m is None:
         return jsonify({
@@ -91,7 +92,7 @@ def revisePassword(account, newPassword, rePassword, phoneNumber):
             "message": "手机号错误",
             "data": ""
         })
-    if not verifyCode(phoneNumber):
+    if vCode != veriCode:
         return jsonify({
             'code': -4,
             "message": "验证码错误",
@@ -105,18 +106,13 @@ def revisePassword(account, newPassword, rePassword, phoneNumber):
     })
 
 
-def verifyCode(phoneNumber):
-    ret = ""
-    for i in range(6):
-        num = random.randint(0, 9)  # 生成数字
-        lowercase = chr(random.randint(97, 122))  # 生成小写字母
-        capital = chr(random.randint(65, 90))  # 生成大写字母
-        s = str(random.choice([num, lowercase, capital]))  # 随机挑选数字字母
-        ret += s
-    if ret == ret:
-        return True
-    else:
-        return False
+def veCode(phoneNumber):
+    veriCode = verifyCode(phoneNumber)
+    return jsonify({
+        'code': 0,
+        "message": "验证码发送成功",
+        "data": veriCode
+    })
 
 
 def showUserList():
