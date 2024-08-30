@@ -1,5 +1,5 @@
 from flask import Blueprint, request
-from services.user import login, register, revisePassword
+from services.user import login, register, revisePassword, veCode
 
 user = Blueprint('user', __name__)
 
@@ -9,8 +9,9 @@ def loginUI():
     account = data['account']
     password = data['password']
     phoneNumber = data['phoneNumber']
-#    vCode = data['vCode']
-    data = login(account, password, phoneNumber)
+    vCode = data['vCode']
+    veriCode = data['veriCode']
+    data = login(account, password, phoneNumber, vCode, veriCode)
     return data
 
 
@@ -20,11 +21,12 @@ def registerUI():
     account = data['account']
     password = data['password']
     rePassword = data['rePassword']
-#    vCode = data['vCode']
+    vCode = data['vCode']
     phoneNumber = data['phoneNumber']
     gender = data['gender']
     userName = data['userName']
-    data = register(account, password, rePassword, phoneNumber, gender, userName)
+    veriCode = data['veriCode']
+    data = register(account, password, rePassword, phoneNumber, gender, userName, vCode, veriCode)
     return data
 
 
@@ -34,15 +36,19 @@ def revisePasswordUI():
     account = data['account']
     password = data['password']
     rePassword = data['rePassword']
+    veriCode = data['verifyCode']
+    vCode = data['vCode']
     phoneNumber = data['phoneNumber']
-    data = revisePassword(account, password, rePassword, phoneNumber)
+    data = revisePassword(account, password, rePassword, phoneNumber, vCode, veriCode)
     return data
 
 
-@user.route('/verifyCode', methods=['POST'])
-def verifyCode():
+@user.route('/verifyCodeUI', methods=['POST'])
+def verifyCodeUI():
     data = request.args
-    vCode = data['vCode']
+    phoneNumber = data['phoneNumber']
+    data = veCode(phoneNumber)
+    return data
 
 
 @user.route('/', methods=['POST'])
