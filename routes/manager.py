@@ -1,5 +1,5 @@
 from flask import Blueprint, request
-from services.manager import login, register, revisePassword, showUserList, showVIPUserList, changeStatus
+from services.manager import login, register, revisePassword, showUserList, showVIPUserList, changeStatus, veCode
 
 manager = Blueprint('manager', __name__)
 
@@ -9,8 +9,9 @@ def loginUI():
     account = data['account']
     password = data['password']
     phoneNumber = data['phoneNumber']
-#    vCode = data['vCode']
-    data = login(account, password, phoneNumber)
+    vCode = data['vCode']
+    veriCode = data['veriCode']
+    data = login(account, password, phoneNumber, vCode, veriCode)
     return data
 
 
@@ -20,11 +21,12 @@ def registerUI():
     account = data['account']
     password = data['password']
     rePassword = data['rePassword']
-#    vCode = data['vCode']
+    vCode = data['vCode']
     phoneNumber = data['phoneNumber']
     gender = data['gender']
-    managerName = data['managerName']
-    data = register(account, password, rePassword, phoneNumber, gender, managerName)
+    userName = data['userName']
+    veriCode = data['veriCode']
+    data = register(account, password, rePassword, phoneNumber, gender, userName, vCode, veriCode)
     return data
 
 
@@ -34,8 +36,10 @@ def revisePasswordUI():
     account = data['account']
     password = data['password']
     rePassword = data['rePassword']
+    veriCode = data['verifyCode']
+    vCode = data['vCode']
     phoneNumber = data['phoneNumber']
-    data = revisePassword(account, password, rePassword, phoneNumber)
+    data = revisePassword(account, password, rePassword, phoneNumber, vCode, veriCode)
     return data
 
 
@@ -70,6 +74,14 @@ def vipAccountManagementUI():
 @manager.route('userFeedbackManagementUI', methods=['POST'])
 def userFeedbackManagementUI():
     pass
+
+
+@manager.route('/verifyCodeUI', methods=['POST'])
+def verifyCodeUI():
+    data = request.args
+    phoneNumber = data['phoneNumber']
+    data = veCode(phoneNumber)
+    return data
 
 
 @manager.route('/', methods=['POST'])
