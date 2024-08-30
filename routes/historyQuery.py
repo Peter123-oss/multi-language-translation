@@ -15,19 +15,19 @@ def queryOCRUI():
 
 @historyQuery.route('/queryASWUI', methods=['POST'])
 def queryASWUI():
-    queryASW()
+    return queryASW()
 
 
 @historyQuery.route('/queryWordTransUI', methods=['POST'])
 def queryWordTransUI():
-    queryWordTrans()
+    return queryWordTrans()
 
 
 @historyQuery.route('/queryDocTransUI', methods=['POST'])
 def queryDocTransUI():
-    queryDocTrans()
+    return queryDocTrans()
 
 
 @historyQuery.route('/userFeedbackUI', methods=['POST'])
 def userFeedbackUI():
-    userFeedback()
+    return userFeedback()
