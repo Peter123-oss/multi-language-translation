@@ -1,8 +1,8 @@
 from models.user import User
 from flask import jsonify
-import random
+from verifyCode import verifyCode
 
-def login(account, password, phoneNumber):
+def login(account, password, phoneNumber, vCode, veriCode):
     u = User.query.filter_by(account=account).first()
     if u is None:
         # 用户不存在
@@ -25,10 +25,10 @@ def login(account, password, phoneNumber):
             "message": "手机号错误",
             "data":""
         })
-    if not verifyCode(phoneNumber):
+    if veriCode != vCode:
         return jsonify({
             'code': -4,
-            "message":"验证码错误",
+            "message": "验证码错误",
             "data":""
         })
     return jsonify({
@@ -38,12 +38,12 @@ def login(account, password, phoneNumber):
         })
 
 
-def register(account, password, rePassword, phoneNumber, gender, userName):
+def register(account, password, rePassword, phoneNumber, gender, userName, vCode, veriCode):
     u = User.query.filter_by(account=account).first()
     if u is not None:
         return jsonify({
             'code': -1,
-            "message": "用户名已存在",
+            "message": "账号已存在",
             "data":""
         })
     if password != rePassword:
@@ -52,7 +52,7 @@ def register(account, password, rePassword, phoneNumber, gender, userName):
             "message": "两次密码输入不一致",
             "data":""
         })
-    if not verifyCode(phoneNumber):
+    if veriCode != vCode:
         return jsonify({
             'code': -3,
             "message": "验证码错误",
@@ -68,28 +68,28 @@ def register(account, password, rePassword, phoneNumber, gender, userName):
     })
 
 
-def revisePassword(account, newPassword, rePassword, phoneNumber):
+def revisePassword(account, newPassword, rePassword, phoneNumber, vCode, veriCode):
     u = User.query.filter_by(account=account).first()
     if u is None:
         return jsonify({
             'code': -1,
-            "message": "用户不存在",
-            "data":""
-        })
-    if newPassword != rePassword:
-        return jsonify({
-            'code': -2,
-            "message": "两次密码输入不一致",
+            "message": "账号不存在",
             "data":""
         })
     uDict = u.toDict()
     if uDict['phoneNumber'] != phoneNumber:
         return jsonify({
-            'code': -3,
+            'code': -2,
             "message": "手机号错误",
             "data":""
         })
-    if not verifyCode(phoneNumber):
+    if newPassword != rePassword:
+        return jsonify({
+            'code': -3,
+            "message": "两次密码输入不一致",
+            "data":""
+        })
+    if vCode != veriCode:
         return jsonify({
             'code': -4,
             "message": "验证码错误",
@@ -103,19 +103,13 @@ def revisePassword(account, newPassword, rePassword, phoneNumber):
     })
 
 
-def verifyCode(phoneNumber):
-    ret = ""
-    for i in range(6):
-        num = random.randint(0, 9)  # 生成数字
-        lowercase = chr(random.randint(97, 122))  # 生成小写字母
-        capital = chr(random.randint(65, 90))  # 生成大写字母
-        s = str(random.choice([num, lowercase, capital]))  # 随机挑选数字字母
-        ret += s
-    vCode = 123456
-    if ret == ret:
-        return True
-    else:
-        return False
+def veCode(phoneNumber):
+    veriCode = verifyCode(phoneNumber)
+    return jsonify({
+        'code': 0,
+        "message": "验证码发送成功",
+        "data": veriCode
+    })
 
 
 def isVIP(account):
