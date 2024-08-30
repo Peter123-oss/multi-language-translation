@@ -3,7 +3,6 @@ from flask import jsonify
 
 from models.transbyword_history import TransByWordHistory
 
-
 def onlineTrans():
     pass
 
