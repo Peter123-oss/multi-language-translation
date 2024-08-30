@@ -1,17 +1,17 @@
 from flask import Blueprint, request
-
+from models.textinput_history import TextInputHistory
+from services.transBySentence import translate
 from services.ASWService import uploadFiles, extract_recognized_text
-from services.user import login, register, revisePassword
-from services.OCRService import uploadFile1, convertToText
 from flask import jsonify
 
-asw = Blueprint('ASWService', __name__)
+asw = Blueprint('aswService', __name__)
 
 
 @asw.route('/aswUpload', methods=['POST'])
 def uploadFile():
     data = request.args
     path = data.get('path')  # 使用 get 方法来避免 KeyError
+    userID = data.get('userID')
 
     if not path:
         return jsonify({"code": -1, "message": "路径缺失"})
@@ -27,6 +27,7 @@ def uploadFile():
     voice_json = upload_result["data"]
     voice_text=extract_recognized_text(voice_json)
 
+    TextInputHistory.add(TextInputHistory(inputPath=path, inputType=1, identifyResult=voice_text, userID=userID))
 
     return jsonify({
         "code":0,
@@ -35,17 +36,11 @@ def uploadFile():
     })
 
 
-@asw.route('/ocrConvert', methods=['POST'])
-def registerUI():
+@asw.route('/aswtranslate', methods=['POST'])
+def aswtranslate():
     data = request.args
-    account = data['account']
-    password = data['password']
-    rePassword = data['rePassword']
-#    vCode = data['vCode']
-    phoneNumber = data['phoneNumber']
-    gender = data['gender']
-    userName = data['userName']
-    data = register(account, password, rePassword, phoneNumber, gender, userName)
+    path = data.get('path')
+    userID = data.get('userID')
+    identifyResult = data.get('identifyResult')
+    data = translate(userID, identifyResult, 1, path)
     return data
-
-
